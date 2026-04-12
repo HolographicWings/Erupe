@@ -208,6 +208,8 @@ type GameplayOptions struct {
 	DisableRoad                    bool    // Disables the Hunting Road
 	SeasonOverride                 bool    // Overrides the Quest Season with the current Mezeporta Season
 	MezFesOnlyOnWeekends           bool    // Restrict MezFes worlds to weekends only
+	EnforceCafeTime                bool    // Always accrue cafe_time, even without NetCafe course
+	CafeResetDays                  uint16  // Always accrue cafe_time, even without NetCafe course
 	DisableReturningHunters        bool    // Disable the Returning Hunters message to eligible players
 }
 
@@ -437,6 +439,8 @@ func registerDefaults() {
 	viper.SetDefault("GameplayOptions.MezFesGroupTickets", uint32(1))
 	viper.SetDefault("GameplayOptions.MezFesDuration", 172800)
 	viper.SetDefault("GameplayOptions.MezFesOnlyOnWeekends", false)
+	viper.SetDefault("GameplayOptions.EnforceCafeTime", false)
+	viper.SetDefault("GameplayOptions.CafeResetDays", 7)
 	viper.SetDefault("GameplayOptions.DisableReturningHunters", false)
 
 	// Discord
@@ -594,6 +598,10 @@ func LoadConfig() (*Config, error) {
 
 	if c.SessionLifetime == 0 {
 		c.SessionLifetime = 12
+	}
+	
+	if c.GameplayOptions.CafeResetDays == 0 {
+		c.GameplayOptions.CafeResetDays = 7
 	}
 	
 	return c, nil

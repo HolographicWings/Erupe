@@ -31,6 +31,12 @@ func WeekNext() time.Time {
 	return WeekStart().Add(time.Hour * 24 * 7)
 }
 
+// DayNextN returns in N day at midnight in JST.
+func DayNextN(days uint16) time.Time {
+	midnight := Midnight()
+	return midnight.AddDate(0, 0, int(days))
+}
+
 // MonthStart returns the first day of the current month at midnight in JST.
 func MonthStart() time.Time {
 	midnight := Midnight()

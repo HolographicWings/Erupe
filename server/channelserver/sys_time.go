@@ -14,5 +14,6 @@ func TimeAdjusted() time.Time   { return gametime.Adjusted() }
 func TimeMidnight() time.Time   { return gametime.Midnight() }
 func TimeWeekStart() time.Time  { return gametime.WeekStart() }
 func TimeWeekNext() time.Time   { return gametime.WeekNext() }
+func TimeDayNextN(days uint16) time.Time { return gametime.DayNextN(days) }
 func TimeMonthStart() time.Time { return gametime.MonthStart() }
 func TimeGameAbsolute() uint32  { return gametime.GameAbsolute() }

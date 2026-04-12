@@ -118,6 +118,8 @@
     "DisableRoad": false,
     "SeasonOverride": false,
 	"MezFesOnlyOnWeekends": false,
+	"EnforceCafeTime": false,
+	"CafeResetDays": 7,
 	"DisableReturningHunters": false,
   },
   "Discord": {

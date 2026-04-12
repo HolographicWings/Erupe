@@ -283,12 +283,15 @@ func logoutPlayer(s *Session) {
 		if mhfcourse.CourseExists(30, s.courses) {
 			rpGained = timePlayed / rpAccrualCafe
 			timePlayed = timePlayed % rpAccrualCafe
-			if _, err := s.server.charRepo.AdjustInt(s.charID, "cafe_time", sessionTime); err != nil {
-				s.logger.Error("Failed to update cafe time", zap.Error(err))
-			}
 		} else {
 			rpGained = timePlayed / rpAccrualNormal
 			timePlayed = timePlayed % rpAccrualNormal
+		}
+
+		if s.server.erupeConfig.GameplayOptions.EnforceCafeTime || mhfcourse.CourseExists(30, s.courses) {
+			if _, err := s.server.charRepo.AdjustInt(s.charID, "cafe_time", sessionTime); err != nil {
+				s.logger.Error("Failed to update cafe time", zap.Error(err))
+			}
 		}
 
 		s.logger.Debug("Session metrics calculated",

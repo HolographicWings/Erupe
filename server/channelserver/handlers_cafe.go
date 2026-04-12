@@ -76,13 +76,15 @@ func handleMsgMhfGetCafeDuration(s *Session, p mhfpacket.MHFPacket) {
 
 	cafeReset, err := s.server.charRepo.ReadTime(s.charID, "cafe_reset", time.Time{})
 	if err != nil {
-		cafeReset = TimeWeekNext()
+		cafeReset = TimeDayNextN(s.server.erupeConfig.GameplayOptions.CafeResetDays)
 		if err := s.server.charRepo.SaveTime(s.charID, "cafe_reset", cafeReset); err != nil {
 			s.logger.Error("Failed to set cafe reset time", zap.Error(err))
 		}
+	} else if !cafeReset.IsZero() {
+		cafeReset = cafeReset.In(TimeAdjusted().Location()) // Temporary workaround the displayed reset day that shows incorrect.
 	}
 	if TimeAdjusted().After(cafeReset) {
-		cafeReset = TimeWeekNext()
+		cafeReset = TimeDayNextN(s.server.erupeConfig.GameplayOptions.CafeResetDays)
 		if err := s.server.charRepo.ResetCafeTime(s.charID, cafeReset); err != nil {
 			s.logger.Error("Failed to reset cafe time", zap.Error(err))
 		}
@@ -97,7 +99,7 @@ func handleMsgMhfGetCafeDuration(s *Session, p mhfpacket.MHFPacket) {
 		doAckBufFail(s, pkt.AckHandle, make([]byte, 4))
 		return
 	}
-	if mhfcourse.CourseExists(30, s.courses) {
+	if s.server.erupeConfig.GameplayOptions.EnforceCafeTime || mhfcourse.CourseExists(30, s.courses) {
 		cafeTime = int(TimeAdjusted().Unix()) - int(s.sessionStart) + cafeTime
 	}
 	bf.WriteUint32(uint32(cafeTime))
@@ -148,7 +150,7 @@ func handleMsgMhfReceiveCafeDurationBonus(s *Session, p mhfpacket.MHFPacket) {
 	bf := byteframe.NewByteFrame()
 	bf.WriteUint32(0)
 	claimable, err := s.server.cafeRepo.GetClaimable(s.charID, TimeAdjusted().Unix()-s.sessionStart)
-	if err != nil || !mhfcourse.CourseExists(30, s.courses) {
+	if err != nil || !s.server.erupeConfig.GameplayOptions.EnforceCafeTime && !mhfcourse.CourseExists(30, s.courses) {
 		doAckBufSucceed(s, pkt.AckHandle, bf.Data())
 	} else {
 		for _, cb := range claimable {

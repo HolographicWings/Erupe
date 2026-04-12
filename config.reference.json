@@ -235,6 +235,8 @@
   },
   "Entrance": {
     "Enabled": true,
+    "HostListen": "",
+    "HostEndpoint": "",
     "Port": 53310,
     "Entries": [
       {

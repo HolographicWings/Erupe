@@ -292,6 +292,8 @@ type Channel struct {
 // Entrance holds the entrance server config.
 type Entrance struct {
 	Enabled bool
+	HostListen    string      // Listened interface for the Entrance, leave blank to listen all
+	HostEndpoint    string    // Endpoint address sent to the launcher (The launcher needs to support it)
 	Port    uint16
 	Entries []EntranceServerInfo
 }
@@ -488,6 +490,8 @@ func registerDefaults() {
 
 	// Entrance server
 	viper.SetDefault("Entrance.Enabled", true)
+	viper.SetDefault("Entrance.HostListen", "")
+	viper.SetDefault("Entrance.HostEndpoint", "")
 	viper.SetDefault("Entrance.Port", uint16(53310))
 	boolTrue := true
 	viper.SetDefault("Entrance.Entries", []EntranceServerInfo{

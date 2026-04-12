@@ -92,6 +92,7 @@ type AuthData struct {
 	Courses       []CourseInfo `json:"courses"`
 	MezFes        *MezFes      `json:"mezFes"`
 	PatchServer   string       `json:"patchServer"`
+	EntranceHost  string       `json:"entranceHost"`
 }
 
 // ExportData wraps a character's full database row for save export.
@@ -110,6 +111,7 @@ func (s *APIServer) newAuthData(userID uint32, userRights uint32, userTokenID ui
 			Token:   userToken,
 		},
 		Characters:  characters,
+		EntranceHost: s.erupeConfig.Entrance.HostEndpoint,
 		PatchServer: s.erupeConfig.API.PatchServer,
 		Notices:     []string{},
 	}

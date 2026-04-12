@@ -48,7 +48,12 @@ func NewServer(config *Config) *Server {
 // Start starts the server in a new goroutine.
 func (s *Server) Start() error {
 
-	l, err := net.Listen("tcp", fmt.Sprintf(":%d", s.erupeConfig.Entrance.Port))
+	addr := fmt.Sprintf(":%d", s.erupeConfig.Entrance.Port)
+	if s.erupeConfig.Entrance.HostListen != "" {
+		addr = fmt.Sprintf("%s:%d", s.erupeConfig.Entrance.HostListen, s.erupeConfig.Entrance.Port)
+	}
+	l, err := net.Listen("tcp", addr)
+	
 	if err != nil {
 		return err
 	}

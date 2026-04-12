@@ -103,7 +103,7 @@ type ExportData struct {
 func (s *APIServer) newAuthData(userID uint32, userRights uint32, userTokenID uint32, userToken string, characters []Character) AuthData {
 	resp := AuthData{
 		CurrentTS:     uint32(gametime.Adjusted().Unix()),
-		ExpiryTS:      uint32(s.getReturnExpiry(userID).Unix()),
+		ExpiryTS:      uint32(s.getSentReturnExpiry(userID).Unix()),
 		EntranceCount: 1,
 		User: User{
 			Rights:  userRights,

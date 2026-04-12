@@ -83,6 +83,16 @@ func (s *APIServer) getReturnExpiry(uid uint32) time.Time {
 	return returnExpiry
 }
 
+func (s *APIServer) getSentReturnExpiry(uid uint32) time.Time {
+	expiry := s.getReturnExpiry(uid)
+
+	if s.erupeConfig.GameplayOptions.DisableReturningHunters {
+		return time.Date(2001, time.January, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
+	}
+
+	return expiry
+}
+
 func (s *APIServer) exportSave(ctx context.Context, uid uint32, cid uint32) (map[string]interface{}, error) {
 	return s.charRepo.ExportSave(ctx, uid, cid)
 }

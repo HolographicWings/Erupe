@@ -73,6 +73,16 @@ func (s *Server) getReturnExpiry(uid uint32) time.Time {
 	return returnExpiry
 }
 
+func (s *Server) getSentReturnExpiry(uid uint32) time.Time {
+	expiry := s.getReturnExpiry(uid)
+
+	if s.erupeConfig.GameplayOptions.DisableReturningHunters {
+		return time.Date(2001, time.January, 1, 0, 0, 0, 0, time.FixedZone("UTC+1", 3600))
+	}
+
+	return expiry
+}
+
 func (s *Server) getLastCID(uid uint32) uint32 {
 	lastPlayed, err := s.userRepo.GetLastCharacter(uid)
 	if err != nil {

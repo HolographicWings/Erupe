@@ -372,7 +372,7 @@ func (s *Session) makeSignResponse(uid uint32) []byte {
 		ps.Uint16(bf, fmt.Sprintf(`%s:%d`, s.server.erupeConfig.DebugOptions.CapLink.Host, s.server.erupeConfig.DebugOptions.CapLink.Port), false)
 	}
 
-	bf.WriteUint32(uint32(s.server.getReturnExpiry(uid).Unix()))
+	bf.WriteUint32(uint32(s.server.getSentReturnExpiry(uid).Unix()))
 	bf.WriteUint32(0)
 
 	tickets := []uint32{

@@ -207,6 +207,7 @@ type GameplayOptions struct {
 	EnableNierEvent                bool    // Enables the Nier event in the Rasta Bar
 	DisableRoad                    bool    // Disables the Hunting Road
 	SeasonOverride                 bool    // Overrides the Quest Season with the current Mezeporta Season
+	MezFesOnlyOnWeekends           bool    // Restrict MezFes worlds to weekends only
 	DisableReturningHunters        bool    // Disable the Returning Hunters message to eligible players
 }
 
@@ -435,6 +436,7 @@ func registerDefaults() {
 	viper.SetDefault("GameplayOptions.MezFesSoloTickets", uint32(5))
 	viper.SetDefault("GameplayOptions.MezFesGroupTickets", uint32(1))
 	viper.SetDefault("GameplayOptions.MezFesDuration", 172800)
+	viper.SetDefault("GameplayOptions.MezFesOnlyOnWeekends", false)
 	viper.SetDefault("GameplayOptions.DisableReturningHunters", false)
 
 	// Discord

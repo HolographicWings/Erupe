@@ -6,15 +6,30 @@ import (
 	"erupe-ce/common/stringsupport"
 	cfg "erupe-ce/config"
 	"net"
+	"time"
 
 	"erupe-ce/common/byteframe"
 	"erupe-ce/common/gametime"
 	"go.uber.org/zap"
 )
 
+func isMezFesActive(config *cfg.Config) bool {
+	duration := config.GameplayOptions.MezFesDuration
+	if duration <= 0 {
+		return false
+	}
+
+	now := gametime.Adjusted()
+	start := gametime.WeekNext().Add(-time.Duration(duration) * time.Second)
+	end := gametime.WeekNext()
+
+	return now.After(start) && now.Before(end)
+}
+
 func encodeServerInfo(config *cfg.Config, s *Server, local bool) []byte {
 	serverInfos := config.Entrance.Entries
 	bf := byteframe.NewByteFrame()
+	mezFesActive := isMezFesActive(config)
 
 	for serverIdx, si := range serverInfos {
 		// Prevent MezFes Worlds displaying on Z1
@@ -62,6 +77,10 @@ func encodeServerInfo(config *cfg.Config, s *Server, local bool) []byte {
 		}
 
 		for channelIdx, ci := range si.Channels {
+			// Prevent MezFes Worlds to be joined out of time
+			if si.Type == 6 && config.GameplayOptions.MezFesOnlyOnWeekends && !mezFesActive {
+				ci.MaxPlayers = 0
+			}
 			sid := (serverIdx<<8 | 4096) + (channelIdx | 16)
 			if config.DebugOptions.ProxyPort != 0 {
 				bf.WriteUint16(config.DebugOptions.ProxyPort)

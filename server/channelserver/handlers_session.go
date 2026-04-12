@@ -14,6 +14,9 @@ import (
 	"io"
 	"strings"
 	"time"
+	
+    "errors"
+    "github.com/lib/pq"
 
 	"go.uber.org/zap"
 )
@@ -101,6 +104,19 @@ func handleMsgSysLogin(s *Session, p mhfpacket.MHFPacket) {
 
 	err = s.server.sessionRepo.BindSession(s.token, s.server.ID, s.charID)
 	if err != nil {
+		//pgsql error 23505: unique_violation https://www.postgresql.org/docs/current/errcodes-appendix.html
+		var pqErr *pq.Error
+		if errors.As(err, &pqErr) && pqErr.Code == "23505" && pqErr.Constraint == "sign_sessions_user_active_uq" {
+			if delErr := s.server.sessionRepo.DeleteByToken(s.token); delErr != nil {
+				s.logger.Warn("Failed to delete rejected sign session", zap.Error(err))
+			}
+			
+			s.logger.Warn("User already connected", zap.Error(err))
+			doAckSimpleFail(s, pkt.AckHandle, make([]byte, 4))
+			_ = s.rawConn.Close()
+			return
+		}
+		
 		s.logger.Error("Failed to update sign session", zap.Error(err))
 		doAckSimpleFail(s, pkt.AckHandle, make([]byte, 4))
 		return
@@ -345,8 +361,11 @@ func logoutPlayer(s *Session) {
 
 	// Update sign sessions and server player count
 	if s.server.db != nil {
-		if err := s.server.sessionRepo.ClearSession(s.token); err != nil {
+		/*if err := s.server.sessionRepo.ClearSession(s.token); err != nil {
 			s.logger.Error("Failed to clear sign session", zap.Error(err))
+		}*/
+		if err := s.server.sessionRepo.DeleteByToken(s.token); err != nil {
+			s.logger.Error("Failed to delete sign session", zap.Error(err))
 		}
 
 		if err := s.server.sessionRepo.UpdatePlayerCount(s.server.ID, len(s.server.sessions)); err != nil {

@@ -24,6 +24,8 @@
   "QuestCacheExpiry": 300,
   "CommandPrefix": "!",
   "AutoCreateAccount": true,
+  "SessionJanitorFrequency": 600,
+  "SessionLifetime": 12,
   "LoopDelay": 50,
   "DefaultCourses": [1, 23, 24],
   "EarthStatus": 0,

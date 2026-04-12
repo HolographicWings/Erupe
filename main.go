@@ -72,6 +72,40 @@ func setupDiscordBot(config *cfg.Config, logger *zap.Logger) *discordbot.Discord
 	return bot
 }
 
+func SessionTimeoutJanitor(ctx context.Context, db *sqlx.DB, config *cfg.Config, logger *zap.Logger) {
+	go func() {
+		ticker := time.NewTicker(time.Duration(config.SessionJanitorFrequency) * time.Second)
+		defer ticker.Stop()
+
+		run := func() {
+			res, err := db.ExecContext(ctx, `
+				DELETE FROM public.sign_sessions
+				WHERE char_id IS NULL
+				  AND created_at < now() - ($1::int * interval '1 hour')
+			`, config.SessionLifetime)
+			if err != nil {
+				logger.Warn("Failed to purge stale sign sessions", zap.Error(err))
+				return
+			}
+
+			if rows, err := res.RowsAffected(); err == nil && rows > 0 {
+				logger.Info("Purged stale sign sessions", zap.Int64("rows", rows))
+			}
+		}
+
+		run()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				run()
+			}
+		}
+	}()
+}
+
 func main() {
 	runSetup := flag.Bool("setup", false, "Launch the setup wizard (even if config.json exists)")
 	flag.Parse()
@@ -271,6 +305,12 @@ func main() {
 		logger.Warn("Without these files, quests will not load and clients will crash.")
 	}
 
+	// Starting sessions janitor
+	sessionJanitorCtx, sessionJanitorStop := context.WithCancel(context.Background())
+	defer sessionJanitorStop()
+
+	SessionTimeoutJanitor(sessionJanitorCtx, db, config, logger.Named("sign-session-janitor"))
+
 	// Now start our server(s).
 
 	// Entrance server.
@@ -400,6 +440,7 @@ func main() {
 	sig := make(chan os.Signal, 2)
 	signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
 	<-sig
+	sessionJanitorStop()
 
 	// Phase 1: stop accepting new connections immediately so players seeing
 	// the countdown cannot start fresh quests at T-1.

@@ -38,3 +38,8 @@ func (r *SessionRepository) UpdatePlayerCount(serverID uint16, count int) error 
 	_, err := r.db.Exec("UPDATE servers SET current_players=$1 WHERE server_id=$2", count, serverID)
 	return err
 }
+
+func (r *SessionRepository) DeleteByToken(token string) error {
+	_, err := r.db.Exec("DELETE FROM sign_sessions WHERE token = $1", token)
+	return err
+}

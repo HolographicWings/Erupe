@@ -287,6 +287,7 @@ type SessionRepo interface {
 	BindSession(token string, serverID uint16, charID uint32) error
 	ClearSession(token string) error
 	UpdatePlayerCount(serverID uint16, count int) error
+	DeleteByToken(token string) error
 }
 
 // EventRepo defines the contract for event/login boost data access.

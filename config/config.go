@@ -89,6 +89,8 @@ type Config struct {
 	SaveDumps                 SaveDumpOptions
 	Screenshots               ScreenshotsOptions
 	Capture                   CaptureOptions
+	SessionJanitorFrequency  uint32 // Interval in seconds between automatic cleanup runs for stale launcher-only sessions.
+	SessionLifetime          uint16 // Maximum age in hours for unused sessions before they are deleted.
 
 	DebugOptions    DebugOptions
 	GameplayOptions GameplayOptions
@@ -366,6 +368,8 @@ func registerDefaults() {
 	viper.RegisterAlias("DisableSoftCrash", "DisableShutdownCountdown")
 	viper.SetDefault("DefaultCourses", []uint16{1, 23, 24})
 	viper.SetDefault("EarthMonsters", []int32{0, 0, 0, 0})
+	viper.SetDefault("SessionJanitorFrequency", 600)
+	viper.SetDefault("SessionLifetime", 12)
 
 	// SaveDumps
 	viper.SetDefault("SaveDumps", SaveDumpOptions{
@@ -579,6 +583,14 @@ func LoadConfig() (*Config, error) {
 	if c.GameplayOptions.MinFeatureWeapons > c.GameplayOptions.MaxFeatureWeapons {
 		c.GameplayOptions.MinFeatureWeapons = c.GameplayOptions.MaxFeatureWeapons
 	}
+	
+	if c.SessionJanitorFrequency == 0 {
+		c.SessionJanitorFrequency = 600
+	}
 
+	if c.SessionLifetime == 0 {
+		c.SessionLifetime = 12
+	}
+	
 	return c, nil
 }

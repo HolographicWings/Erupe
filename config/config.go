@@ -90,7 +90,7 @@ type Config struct {
 	Screenshots               ScreenshotsOptions
 	Capture                   CaptureOptions
 	SessionJanitorFrequency  uint32 // Interval in seconds between automatic cleanup runs for stale launcher-only sessions.
-	SessionLifetime          uint16 // Maximum age in hours for unused sessions before they are deleted.
+	SessionLifetime          uint16 // Maximum age in seconds for unused sessions before they are deleted.
 
 	DebugOptions    DebugOptions
 	GameplayOptions GameplayOptions
@@ -373,7 +373,7 @@ func registerDefaults() {
 	viper.SetDefault("DefaultCourses", []uint16{1, 23, 24})
 	viper.SetDefault("EarthMonsters", []int32{0, 0, 0, 0})
 	viper.SetDefault("SessionJanitorFrequency", 600)
-	viper.SetDefault("SessionLifetime", 12)
+	viper.SetDefault("SessionLifetime", 1800)
 
 	// SaveDumps
 	viper.SetDefault("SaveDumps", SaveDumpOptions{
@@ -597,7 +597,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	if c.SessionLifetime == 0 {
-		c.SessionLifetime = 12
+		c.SessionLifetime = 1800
 	}
 	
 	if c.GameplayOptions.CafeResetDays == 0 {

@@ -81,7 +81,7 @@ func SessionTimeoutJanitor(ctx context.Context, db *sqlx.DB, config *cfg.Config,
 			res, err := db.ExecContext(ctx, `
 				DELETE FROM public.sign_sessions
 				WHERE char_id IS NULL
-				  AND created_at < now() - ($1::int * interval '1 hour')
+				  AND created_at < now() - ($1::int * interval '1 second')
 			`, config.SessionLifetime)
 			if err != nil {
 				logger.Warn("Failed to purge stale sign sessions", zap.Error(err))

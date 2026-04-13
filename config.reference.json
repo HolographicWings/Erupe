@@ -25,7 +25,7 @@
   "CommandPrefix": "!",
   "AutoCreateAccount": true,
   "SessionJanitorFrequency": 600,
-  "SessionLifetime": 12,
+  "SessionLifetime": 1800,
   "LoopDelay": 50,
   "DefaultCourses": [1, 23, 24],
   "EarthStatus": 0,
